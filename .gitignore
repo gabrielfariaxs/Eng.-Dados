@@ -1,0 +1,13 @@
+# Ambientes Virtuais (Virtual Environments)
+venv/
+.venv/
+env/
+.env/
+
+# Banco de dados local gerado no teste
+universities.db
+
+# Arquivos cacheados do Python
+__pycache__/
+*.py[cod]
+*$py.class
