@@ -1,8 +1,9 @@
 # Ambientes Virtuais (Virtual Environments)
 venv/
 .venv/
-env/
 .env/
+.env
+env/
 
 # Banco de dados local gerado no teste
 universities.db

@@ -1,0 +1,6 @@
+pymongo
+dnspython
+pandas
+python-dotenv
+requests
+matplotlib
