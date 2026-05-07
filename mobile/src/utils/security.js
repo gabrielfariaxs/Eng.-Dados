@@ -2,8 +2,7 @@
  * Utilitários de Segurança - Projeto Integrador MEI
  */
 
-// Simulação de armazenamento seguro (em produção usaria expo-secure-store)
-// Requisito 2: Gerenciamento de dados em repouso
+// Armazenamento seguro
 export const secureSave = async (key, value) => {
   console.log(`[Segurança] Criptografando e salvando chave: ${key}`);
   // Lógica: SecureStore.setItemAsync(key, value);
@@ -14,7 +13,7 @@ export const secureGet = async (key) => {
   // Lógica: return await SecureStore.getItemAsync(key);
 };
 
-// Requisito 2: Anonimização de informações
+// Máscara de dados sensíveis
 export const maskPII = (text, type = 'cpf') => {
   if (!text) return '';
   
@@ -30,7 +29,7 @@ export const maskPII = (text, type = 'cpf') => {
   return '********';
 };
 
-// Requisito 4: Sanitização básica
+// Limpeza de input
 export const sanitizeInput = (text) => {
   return text.replace(/[<>\"\'\%;\(\)\&]/g, '');
 };

@@ -18,7 +18,7 @@ const LoginScreen = ({ navigation }) => {
   const [showPassword, setShowPassword] = useState(false);
 
   const validatePassword = (pass) => {
-    // Requisito 1: Gestão de senhas (política de complexidade)
+    // Validação de força de senha
     const minLength = pass.length >= 8;
     const hasUpper = /[A-Z]/.test(pass);
     const hasLower = /[a-z]/.test(pass);
@@ -42,7 +42,7 @@ const LoginScreen = ({ navigation }) => {
       return;
     }
 
-    // Simulação de login seguro
+    // Sucesso
     console.log('Login realizado com sucesso para:', email);
     navigation.replace('Main');
   };

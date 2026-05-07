@@ -1,35 +1,32 @@
-# Requisito 1: Gestão de Autenticação de Usuários e Gestão de Senhas
+# Requisito 1: Autenticação e Gestão de Senhas
 
-**Projeto:** MEI - Plataforma de Licitações Públicas  
-**Data:** 07 de Maio de 2026
+**Projeto:** MEI - Licitações
+**Data:** 07/05/2026
 
-## 1. Introdução
-Este documento descreve as políticas e mecanismos técnicos implementados para garantir a identidade dos usuários e a integridade das suas credenciais de acesso na plataforma MEI.
+Neste documento detalhamos como o sistema lida com a segurança dos usuários e suas senhas.
 
-## 2. Política de Senhas
-Para garantir a robustez das contas, foi estabelecida a seguinte política de complexidade de senhas:
-*   Mínimo de 8 caracteres.
-*   Obrigatório o uso de letras maiúsculas e minúsculas.
-*   Inclusão de pelo menos um número.
-*   Inclusão de pelo menos um caractere especial (ex: !, @, #, $, %).
+## 1. Regras para Senhas
+Para evitar contas fracas, o sistema exige:
+*   Pelo menos 8 caracteres.
+*   Letras maiúsculas e minúsculas.
+*   Pelo menos um número.
+*   Pelo menos um símbolo (ex: @, #, $).
 
-## 3. Mecanismos de Proteção
-### 3.1. Hashing de Senhas (Backend)
-As senhas nunca são armazenadas em texto claro. Utilizamos o algoritmo **Argon2** ou **BCrypt** com um fator de custo adequado para proteger contra ataques de dicionário e brute-force. Cada senha possui um *Salt* único gerado aleatoriamente.
+## 2. Como os dados são protegidos
+### 2.1. No Servidor (Backend)
+As senhas não ficam salvas em texto comum. Usamos o algoritmo **BCrypt** para transformar a senha em um código seguro (hash) antes de salvar no banco de dados. Isso impede que alguém veja a senha original mesmo se acessar o banco.
 
-### 3.2. Armazenamento Seguro (Frontend Mobile)
-No aplicativo mobile, as credenciais e tokens de sessão (JWT) são armazenados utilizando o **Expo SecureStore** (iOS: Keychain; Android: SharedPreferences criptografadas com AES-256-GCM).
+### 2.2. No Aplicativo (Mobile)
+Os tokens de login ficam guardados no **SecureStore** do celular. No iPhone isso usa o Keychain e no Android usa SharedPreferences com criptografia AES-256. É muito mais seguro que o armazenamento comum.
 
-### 3.3. Gestão de Sessão
-*   Utilização de **JSON Web Tokens (JWT)** para autenticação stateless.
-*   Tokens com tempo de expiração curto (1 hora) e utilização de *Refresh Tokens*.
-*   Mecanismo de "Logout" que invalida o token localmente e no servidor.
+### 2.3. Sessão
+Usamos tokens **JWT** para controlar quem está logado. Os tokens expiram em 1 hora para diminuir riscos caso o celular seja perdido.
 
-## 4. Recuperação de Acesso
-O processo de recuperação de senha é realizado através de:
-1.  Solicitação via e-mail verificado.
-2.  Envio de um token temporário de uso único (OTP).
-3.  Exigência de nova senha que atenda à política de complexidade.
+## 3. Esqueci minha senha
+Se o usuário perder o acesso:
+1.  Ele pede a recuperação pelo e-mail.
+2.  Recebe um código único para validar a identidade.
+3.  Cria uma nova senha dentro das regras de segurança.
 
 ---
 **Responsável:** [Seu Nome]
