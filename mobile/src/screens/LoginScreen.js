@@ -114,6 +114,11 @@ const LoginScreen = ({ navigation }) => {
           <Text style={styles.footerText}>
             🔐 Seus dados estão protegidos conforme a LGPD.
           </Text>
+          <TouchableOpacity onPress={() => Alert.alert('Política de Privacidade', 'Conteúdo da Política de Privacidade e Termos de Uso do MEI...')}>
+            <Text style={[styles.footerText, { color: '#2563eb', marginTop: 4 }]}>
+              Ver Termos e Privacidade
+            </Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
