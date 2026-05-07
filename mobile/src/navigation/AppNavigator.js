@@ -11,6 +11,7 @@ import DashboardScreen from '../screens/DashboardScreen';
 import AlertsScreen from '../screens/AlertsScreen';
 import BidDetailsScreen from '../screens/BidDetailsScreen';
 import OnboardingScreen from '../screens/OnboardingScreen';
+import LoginScreen from '../screens/LoginScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -64,6 +65,11 @@ export default function AppNavigator() {
         <Stack.Screen 
           name="Onboarding" 
           component={OnboardingScreen} 
+          options={{ headerShown: false }} 
+        />
+        <Stack.Screen 
+          name="Login" 
+          component={LoginScreen} 
           options={{ headerShown: false }} 
         />
         <Stack.Screen 
