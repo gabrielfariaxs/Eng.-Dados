@@ -5,8 +5,14 @@ venv/
 .env
 env/
 
-# Banco de dados local gerado no teste
+# Bancos de dados locais
 universities.db
+licitacoes_mei.db
+*.db
+
+# Outputs do Spark e Dashboards
+output_spark_licitacoes/
+*.png
 
 # Arquivos cacheados do Python
 __pycache__/
