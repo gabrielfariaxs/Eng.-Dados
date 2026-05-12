@@ -12,25 +12,25 @@ O objetivo é facilitar o acesso do pequeno empreendedor ao mercado de compras g
 
 A solução utiliza tecnologias modernas de Big Data e Orquestração para garantir a confiabilidade dos dados:
 
-1.  **pipeline.py**: Contém a lógica de extração da API do PNCP, transformação com Pandas (Data Wrangling) e carga em múltiplos destinos.
-2.  **orchestrate_prefect.py**: Orquestrador que gerencia o fluxo de trabalho, garantindo retentativas em caso de falha e permitindo o agendamento diário.
-3.  **Bancos de Dados**: 
-    *   **SQLite**: Armazenamento local para cache e processamento rápido.
-    *   **MongoDB Atlas**: Banco de dados NoSQL em nuvem para alimentar o aplicativo mobile em tempo real.
+1.  **pipeline.py**: Contém a lógica de extração da API do PNCP, transformação inicial com Pandas e carga.
+2.  **spark_transform.py**: Módulo de Big Data que utiliza **PySpark** para acessar os dados no MongoDB Atlas e realizar transformações complexas para análise tabular.
+3.  **orchestrate_prefect.py**: Orquestrador que gerencia todo o ciclo de vida do dado, incluindo a orquestração do Spark.
+4.  **Bancos de Dados**: 
+    *   **SQLite**: Armazenamento local para cache.
+    *   **MongoDB Atlas**: Banco de dados NoSQL em nuvem (Camada de Dados Brutos/Processados).
 
 ---
 
-## 🔄 Fluxo de Dados (LicitaMEI)
+## 🔄 Fluxo de Dados (LicitaMEI + Spark)
 
 ```mermaid
-graph LR
+graph TD
     PNCP[API PNCP] --> EXT[Extrator de Licitações]
-    EXT --> TRF[Transformer - Filtros MEI]
-    TRF --> LD_SQL[SQLite Loader]
+    EXT --> TRF[Transformer - Pandas]
     TRF --> LD_MGO[MongoDB Loader]
-    LD_SQL --> DB_SQL[(licitacoes_mei.db)]
     LD_MGO --> DB_MGO[(MongoDB Atlas)]
-    DB_SQL --> ANA[Análise de Oportunidades]
+    DB_MGO --> SPK[PySpark - Transformação Tabular]
+    SPK --> OUT[Output Estruturado / Dashboards]
 ```
 
 ---
@@ -39,27 +39,23 @@ graph LR
 
 ### 1. Pré-requisitos
 *   Python 3.10+
+*   Java 8+ (Necessário para o PySpark)
 *   Dependências listadas em `requirements.txt`
 
-### 2. Executando o Pipeline
-Para rodar a busca de licitações agora:
+### 2. Executando o Pipeline Completo
+Para rodar a busca e o processamento Spark:
 ```bash
 python orchestrate_prefect.py
-```
-
-Para configurar o robô para rodar automaticamente (Agendamento):
-```bash
-python orchestrate_prefect.py serve
 ```
 
 ---
 
 ## 🛠️ Tecnologias Utilizadas
 *   **Prefect**: Orquestração de fluxos (Workflow Automation).
-*   **Pandas**: Processamento e limpeza de dados.
+*   **PySpark**: Processamento de dados em larga escala (Big Data).
+*   **Pandas**: Manipulação de dados inicial.
+*   **MongoDB Atlas**: Armazenamento em nuvem.
 *   **Requests**: Integração com a API do PNCP.
-*   **MongoDB & SQLite**: Persistência de dados.
-*   **Matplotlib**: Geração de dashboards de insights.
 
 ---
 
