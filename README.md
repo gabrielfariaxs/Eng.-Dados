@@ -1,33 +1,36 @@
-# 🎓 University ETL Pipeline - Engenharia de Dados
+# 🎓 LicitaMEI: Democratizando o Acesso a Compras Públicas através da Engenharia de Dados
 
-Este projeto é uma solução robusta de Engenharia de Dados desenvolvida para a disciplina de **Engenharia de Dados**. Ele implementa um pipeline ETL (Extração, Transformação e Carga) para coletar dados de instituições de ensino superior ao redor do mundo.
+Este projeto é uma solução completa de **Engenharia de Dados** desenvolvida para o ecossistema **LicitaMEI**. Ele implementa um pipeline ETL automatizado para coletar, processar e distribuir oportunidades de licitações públicas brasileiras especificamente filtradas para Microempreendedores Individuais (MEI).
 
 ---
 
 ## 📖 Proposta do Projeto
 
-O objetivo deste projeto é construir uma infraestrutura de dados capaz de consumir a [Universities API](http://universities.hipolabs.com/), realizar processos de limpeza e padronização dos dados (Data Wrangling) e persistir os resultados em múltiplas camadas de armazenamento: uma local (SQLite) para acesso rápido e uma em nuvem (MongoDB Atlas) para escalabilidade.
+O objetivo é facilitar o acesso do pequeno empreendedor ao mercado de compras governamentais. O pipeline consome dados reais do **PNCP (Portal Nacional de Contratações Públicas)**, identifica licitações com benefícios exclusivos para MEI/EPP (conforme a Lei 14.133/2021) e organiza essas informações para alimentar o aplicativo mobile LicitaMEI.
 
 ## 🏗️ Arquitetura da Solução
 
-A solução segue os princípios de **Programação Orientada a Objetos (POO)** de forma enxuta:
+A solução utiliza tecnologias modernas de Big Data e Orquestração para garantir a confiabilidade dos dados:
 
-1.  **pipeline.py**: Contém a classe `UniversityETL` que gerencia todo o fluxo (Extração, Transformação, Carga e Análise).
-2.  **main.py**: Script minimalista que executa o pipeline via encadeamento de métodos.
+1.  **pipeline.py**: Contém a lógica de extração da API do PNCP, transformação com Pandas (Data Wrangling) e carga em múltiplos destinos.
+2.  **orchestrate_prefect.py**: Orquestrador que gerencia o fluxo de trabalho, garantindo retentativas em caso de falha e permitindo o agendamento diário.
+3.  **Bancos de Dados**: 
+    *   **SQLite**: Armazenamento local para cache e processamento rápido.
+    *   **MongoDB Atlas**: Banco de dados NoSQL em nuvem para alimentar o aplicativo mobile em tempo real.
 
 ---
 
-## 🔄 Fluxo de Dados
+## 🔄 Fluxo de Dados (LicitaMEI)
 
 ```mermaid
 graph LR
-    API[Universities API] --> EXT[Extractor]
-    EXT --> TRF[Transformer - Pandas]
+    PNCP[API PNCP] --> EXT[Extrator de Licitações]
+    EXT --> TRF[Transformer - Filtros MEI]
     TRF --> LD_SQL[SQLite Loader]
     TRF --> LD_MGO[MongoDB Loader]
-    LD_SQL --> DB_SQL[(universities.db)]
+    LD_SQL --> DB_SQL[(licitacoes_mei.db)]
     LD_MGO --> DB_MGO[(MongoDB Atlas)]
-    DB_SQL --> ANA[Analysis Script]
+    DB_SQL --> ANA[Análise de Oportunidades]
 ```
 
 ---
@@ -36,40 +39,27 @@ graph LR
 
 ### 1. Pré-requisitos
 *   Python 3.10+
-*   Conta no [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
+*   Dependências listadas em `requirements.txt`
 
-### 2. Configuração do Ambiente
-Clone o repositório e instale as dependências:
+### 2. Executando o Pipeline
+Para rodar a busca de licitações agora:
 ```bash
-pip install -r requirements.txt
+python orchestrate_prefect.py
 ```
 
-### 3. Variáveis de Ambiente
-Crie um arquivo `.env` na raiz do projeto baseado no `.env.example`:
+Para configurar o robô para rodar automaticamente (Agendamento):
 ```bash
-MONGODB_URI=sua_uri_do_mongodb_atlas
-DB_NAME=university_db
-COLLECTION_NAME=universities
-SQLITE_DB=universities.db
+python orchestrate_prefect.py serve
 ```
-
-### 4. Executando o Pipeline e Análise
-Para iniciar o processo de ETL e gerar o dashboard automaticamente, execute:
-```bash
-python main.py
-```
-
-O script solicitará o país e realizará todas as etapas, salvando os dados e gerando o gráfico de análise (`analise_<pais>.png`) na raiz do projeto.
 
 ---
 
 ## 🛠️ Tecnologias Utilizadas
-*   **Python**: Linguagem principal.
-*   **Pandas**: Manipulação e análise de dados.
-*   **PyMongo**: Integração com MongoDB Atlas.
-*   **Matplotlib**: Visualização de dados.
-*   **Requests**: Consumo de API REST.
-*   **Dotenv**: Gestão de configurações seguras.
+*   **Prefect**: Orquestração de fluxos (Workflow Automation).
+*   **Pandas**: Processamento e limpeza de dados.
+*   **Requests**: Integração com a API do PNCP.
+*   **MongoDB & SQLite**: Persistência de dados.
+*   **Matplotlib**: Geração de dashboards de insights.
 
 ---
 
@@ -77,5 +67,5 @@ O script solicitará o país e realizará todas as etapas, salvando os dados e g
 *   Gabriel Farias
 *   Ewerton Monteiro
 *   Dayanne Moraes
-*   Lucas Matheus
+*   Lucas Mateus
 *   Douglas Araujo

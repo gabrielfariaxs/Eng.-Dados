@@ -1,53 +1,92 @@
 import os, json, logging, requests, sqlite3
 import pandas as pd
 import matplotlib.pyplot as plt
-from abc import ABC, abstractmethod
+from datetime import datetime, timedelta
 from pymongo import MongoClient
 from dotenv import load_dotenv
 
 logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 logger = logging.getLogger(__name__)
 
-class UniversityETL:
-    """Pipeline ETL para processamento de dados de universidades."""
+class LicitacaoMEIETL:
+    """Pipeline ETL para processamento de licitações voltadas para MEI (PNCP)."""
     
-    def __init__(self, country: str):
+    def __init__(self, dias_frente: int = 15):
         load_dotenv()
-        self.country = country
+        self.dias_frente = dias_frente
         self.data = None
+        # Datas para o PNCP
+        self.data_inicio = datetime.now().strftime("%Y%m%d")
+        self.data_fim = (datetime.now() + timedelta(days=dias_frente)).strftime("%Y%m%d")
 
     def extract(self):
-        """Busca dados brutos da API."""
+        """Busca licitações com propostas abertas no PNCP."""
         try:
-            logger.info(f"Extraindo dados para {self.country}...")
-            r = requests.get("http://universities.hipolabs.com/search", params={"country": self.country})
+            logger.info(f"Extraindo licitações de {self.data_inicio} até {self.data_fim}...")
+            url = "https://pncp.gov.br/api/consulta/v1/contratacoes/proposta"
+            params = {
+                "dataInicial": self.data_inicio,
+                "dataFinal": self.data_fim,
+                "pagina": 1,
+                "tamanhoPagina": 50
+            }
+            r = requests.get(url, params=params)
             r.raise_for_status()
-            self.data = r.json()
+            response_json = r.json()
+            self.data = response_json.get('data', [])
             return self
         except Exception as e:
             logger.error(f"Erro na extração: {e}")
             return self
 
     def transform(self):
-        """Limpa e formata os dados usando Pandas."""
-        if not self.data: return self
+        """Limpa e formata os dados das licitações."""
+        if not self.data: 
+            logger.warning("Sem dados para transformar.")
+            return self
+            
         df = pd.DataFrame(self.data)
-        df.columns = [c.replace("-", "_") for c in df.columns]
-        df['state_province'] = df['state_province'].fillna('N/A')
-        self.data = df.drop_duplicates(subset=['name'])
-        logger.info("Transformação concluída.")
+        
+        # Flatten nested columns
+        df['orgao_nome'] = df['orgaoEntidade'].apply(lambda x: x.get('razaoSocial') if isinstance(x, dict) else 'N/A')
+        df['uf'] = df['unidadeOrgao'].apply(lambda x: x.get('ufSigla') if isinstance(x, dict) else 'N/A')
+        
+        # Selecionar e renomear colunas úteis
+        logger.info(f"Colunas disponíveis: {df.columns.tolist()}")
+        
+        cols = {
+            'numeroCompra': 'numero',
+            'objeto': 'descricao',
+            'dataPublicacaoPncp': 'data_publicacao',
+            'orgao_nome': 'orgao',
+            'uf': 'estado'
+        }
+        
+        # Só renomeia se a coluna existir no DF
+        existing_cols = {k: v for k, v in cols.items() if k in df.columns}
+        df = df.rename(columns=existing_cols)
+        
+        # Selecionar apenas o que conseguimos mapear
+        self.data = df[list(existing_cols.values())].copy()
+        
+        # Adicionar flag se menciona MEI/Microempresa no objeto
+        if 'descricao' in self.data.columns:
+            self.data['foco_mei'] = self.data['descricao'].str.contains('MEI|ME |EPP|Microempresa', case=False, na=False)
+        else:
+            self.data['foco_mei'] = False
+        
+        logger.info(f"Transformação concluída. {len(self.data)} licitações processadas.")
         return self
 
-    def load_sqlite(self, db_path="universities.db"):
+    def load_sqlite(self, db_path="licitacoes_mei.db"):
         """Salva no SQLite local."""
         if self.data is None or self.data.empty: return self
         try:
-            df_temp = self.data.copy()
-            for col in ['web_pages', 'domains']: df_temp[col] = df_temp[col].apply(json.dumps)
             with sqlite3.connect(db_path) as conn:
-                df_temp.to_sql(self.country.lower().replace(" ", "_"), conn, if_exists='replace', index=False)
+                self.data.to_sql("licitacoes_ativas", conn, if_exists='replace', index=False)
             logger.info(f"Salvo no SQLite: {db_path}")
-        except Exception as e: logger.error(f"Erro SQLite: {e}")
+        except Exception as e: 
+            logger.error(f"Erro SQLite: {e}")
         return self
 
     def load_mongo(self):
@@ -58,20 +97,25 @@ class UniversityETL:
             return self
         try:
             client = MongoClient(uri)
-            db = client[os.getenv("DB_NAME", "univ_db")]
-            col = db[os.getenv("COLLECTION_NAME", "univs")]
-            col.delete_many({"country": self.country})
+            db = client[os.getenv("DB_NAME", "licitamei_db")]
+            col = db[os.getenv("COLLECTION_NAME", "oportunidades")]
+            col.delete_many({}) # Limpa para o demo
             col.insert_many(self.data.to_dict('records'))
             logger.info("Salvo no MongoDB Atlas.")
             client.close()
-        except Exception as e: logger.error(f"Erro MongoDB: {e}")
+        except Exception as e: 
+            logger.error(f"Erro MongoDB: {e}")
         return self
 
     def analyze(self):
-        """Gera um gráfico simples como diferencial."""
+        """Gera um gráfico de licitações por estado."""
         if self.data is None or self.data.empty: return
-        top = self.data['state_province'].value_counts().head(10)
-        top.plot(kind='bar', color='skyblue', figsize=(10,6), title=f'Universidades - {self.country}')
+        
+        plt.figure(figsize=(10,6))
+        self.data['estado'].value_counts().plot(kind='bar', color='green')
+        plt.title('Oportunidades de Licitação por Estado (Foco MEI)')
+        plt.xlabel('Estado')
+        plt.ylabel('Quantidade')
         plt.tight_layout()
-        plt.savefig(f"analise_{self.country.lower()}.png")
-        logger.info(f"Dashboard gerado: analise_{self.country.lower()}.png")
+        plt.savefig("analise_licitacoes_mei.png")
+        logger.info("Dashboard gerado: analise_licitacoes_mei.png")

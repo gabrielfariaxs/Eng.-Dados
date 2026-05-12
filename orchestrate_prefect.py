@@ -1,73 +1,73 @@
 from prefect import flow, task, get_run_logger
 from dotenv import load_dotenv
-from pipeline import UniversityETL
+from pipeline import LicitacaoMEIETL
 
 load_dotenv()
 
 @task(retries=3, retry_delay_seconds=10)
-def extract_data(country: str) -> UniversityETL:
+def extract_licitacoes(dias: int) -> LicitacaoMEIETL:
     logger = get_run_logger()
-    logger.info(f"Iniciando extração de dados para {country}")
-    etl = UniversityETL(country)
+    logger.info(f"Iniciando extração de licitações para os próximos {dias} dias")
+    etl = LicitacaoMEIETL(dias)
     etl.extract()
-    if etl.data is not None:
-        logger.info(f"Registros extraídos brutos: {len(etl.data)}")
+    if etl.data:
+        logger.info(f"Licitações brutas encontradas: {len(etl.data)}")
     return etl
 
 @task
-def transform_data(etl: UniversityETL) -> UniversityETL:
+def transform_licitacoes(etl: LicitacaoMEIETL) -> LicitacaoMEIETL:
     logger = get_run_logger()
-    logger.info("Iniciando transformação de dados")
+    logger.info("Transformando dados das licitações (Flattening e Filtros MEI)")
     etl.transform()
-    if etl.data is not None:
-        logger.info(f"Registros após transformação: {len(etl.data)}")
     return etl
 
 @task
-def load_data_sqlite(etl: UniversityETL) -> UniversityETL:
+def load_to_sqlite(etl: LicitacaoMEIETL) -> LicitacaoMEIETL:
     logger = get_run_logger()
-    logger.info("Iniciando carga no SQLite local")
+    logger.info("Carregando dados no SQLite (licitacoes_mei.db)")
     etl.load_sqlite()
     return etl
 
 @task
-def load_data_mongo(etl: UniversityETL) -> UniversityETL:
+def load_to_mongo(etl: LicitacaoMEIETL) -> LicitacaoMEIETL:
     logger = get_run_logger()
-    logger.info("Iniciando carga no MongoDB Atlas")
+    logger.info("Sincronizando com MongoDB Atlas")
     etl.load_mongo()
     return etl
 
 @task
-def analyze_data(etl: UniversityETL):
+def generate_insights(etl: LicitacaoMEIETL):
     logger = get_run_logger()
-    logger.info("Gerando análise e dashboard")
+    logger.info("Gerando visualização de oportunidades por estado")
     etl.analyze()
 
-@flow(name="ETL Universities Prefect", log_prints=True)
-def etl_universities_flow(country: str = "Brazil"):
+@flow(name="LicitaMEI-Pipeline-Principal", log_prints=True)
+def licitamei_main_flow(periodo_dias: int = 15):
     logger = get_run_logger()
-    logger.info(f"=== Iniciando Pipeline ETL para: {country} ===")
+    logger.info("🚀 Iniciando Pipeline LicitaMEI - Oportunidades Públicas")
     
-    etl_extracted = extract_data(country)
-    etl_transformed = transform_data(etl_extracted)
-    etl_sqlite = load_data_sqlite(etl_transformed)
-    etl_mongo = load_data_mongo(etl_sqlite)
-    analyze_data(etl_mongo)
+    # Execução das tasks
+    etl_raw = extract_licitacoes(periodo_dias)
+    etl_clean = transform_licitacoes(etl_raw)
+    etl_sqlite = load_to_sqlite(etl_clean)
+    etl_mongo = load_to_mongo(etl_sqlite)
+    generate_insights(etl_mongo)
     
-    logger.info("=== Pipeline concluído com sucesso! ===")
+    logger.info("✅ Pipeline LicitaMEI concluído com sucesso!")
 
 if __name__ == "__main__":
     import sys
     
+    # Se rodar com 'serve', cria o deployment agendado
     if len(sys.argv) > 1 and sys.argv[1] == "serve":
-        print("Criando agendamento (Deployment) para rodar todos os dias às 8h...")
-        etl_universities_flow.serve(
-            name="extracao-diaria",
+        print("Configurando agendamento diário para o LicitaMEI às 08:00...")
+        licitamei_main_flow.serve(
+            name="busca-licitacoes-diaria",
             cron="0 8 * * *",
-            tags=["projeto-integrador", "diario", "etl"],
-            description="Pipeline de ETL agendado para rodar diariamente às 08:00."
+            tags=["mei", "licitacao", "producao"],
+            description="Busca diariamente novas oportunidades de licitação para MEIs."
         )
     else:
-        pais = sys.argv[1] if len(sys.argv) > 1 else "Brazil"
-        etl_universities_flow(pais)
-
+        # Execução manual imediata
+        dias = int(sys.argv[1]) if len(sys.argv) > 1 else 15
+        licitamei_main_flow(dias)
