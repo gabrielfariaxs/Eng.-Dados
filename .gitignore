@@ -5,10 +5,9 @@ venv/
 .env
 env/
 
-# Bancos de dados locais
+# Bancos de dados locais antigos (O licitacoes_mei.db vai ser comitado para o Chatbot funcionar direto)
 universities.db
-licitacoes_mei.db
-*.db
+# *.db
 
 # Outputs do Spark e Dashboards
 output_spark_licitacoes/
