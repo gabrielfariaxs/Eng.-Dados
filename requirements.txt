@@ -6,3 +6,6 @@ requests
 matplotlib
 prefect
 pyspark
+fastmcp
+streamlit
+openai
