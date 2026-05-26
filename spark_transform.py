@@ -28,7 +28,6 @@ def run_spark_transformation():
         .config("spark.mongodb.read.database", db_name) \
         .config("spark.mongodb.read.collection", collection) \
         .config("spark.jars.packages", "org.mongodb.spark:mongo-spark-connector_2.12:10.1.1") \
-        .get_status() \
         .getOrCreate()
 
     try:

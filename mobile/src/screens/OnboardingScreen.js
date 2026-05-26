@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native';
+import { FileText } from 'lucide-react-native';
 
 export default function OnboardingScreen({ navigation }) {
   return (
@@ -7,17 +8,18 @@ export default function OnboardingScreen({ navigation }) {
       <View style={styles.content}>
         <View style={styles.header}>
           <Text style={styles.title}>LicitaMEI</Text>
-          <Text style={styles.subtitle}>Democratizando o acesso a licitações para MEIs</Text>
+          <Text style={styles.subtitle}>Licitações Públicas para Microempreendedores</Text>
         </View>
 
         <View style={styles.illustration}>
-          {/* Espaço para uma ilustração ou logo */}
-          <View style={styles.circle} />
+          <View style={styles.circle}>
+            <FileText size={72} color="#2563eb" />
+          </View>
         </View>
 
         <View style={styles.footer}>
           <Text style={styles.description}>
-            Encontre editais, organize seus documentos e participe de concorrências públicas de forma simplificada.
+            Encontre oportunidades de compras públicas, organize seus documentos de habilitação jurídica e participe de concorrências governamentais de forma simplificada e direta.
           </Text>
           
           <TouchableOpacity 
@@ -35,7 +37,7 @@ export default function OnboardingScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#f8fafc',
   },
   content: {
     flex: 1,
@@ -43,38 +45,51 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   header: {
-    marginTop: 40,
+    marginTop: 60,
     alignItems: 'center',
   },
   title: {
-    fontSize: 32,
+    fontSize: 36,
     fontWeight: 'bold',
     color: '#2563eb',
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#64748b',
     textAlign: 'center',
     marginTop: 8,
+    fontWeight: '500',
   },
   illustration: {
     alignItems: 'center',
     justifyContent: 'center',
+    marginVertical: 40,
   },
   circle: {
-    width: 200,
-    height: 200,
-    borderRadius: 100,
+    width: 180,
+    height: 180,
+    borderRadius: 90,
     backgroundColor: '#eff6ff',
+    borderWidth: 1,
+    borderColor: '#dbeafe',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#2563eb',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 2,
   },
   footer: {
     marginBottom: 40,
   },
   description: {
-    fontSize: 14,
-    color: '#94a3b8',
+    fontSize: 13,
+    color: '#64748b',
     textAlign: 'center',
+    lineHeight: 20,
     marginBottom: 32,
+    paddingHorizontal: 12,
   },
   button: {
     backgroundColor: '#2563eb',
@@ -83,13 +98,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     shadowColor: '#2563eb',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
+    shadowOpacity: 0.15,
     shadowRadius: 8,
     elevation: 4,
   },
   buttonText: {
     color: '#fff',
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
   },
 });

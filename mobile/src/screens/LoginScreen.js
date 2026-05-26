@@ -10,15 +10,14 @@ import {
   Platform,
   ScrollView
 } from 'react-native';
-import { Lock, Mail, Eye, EyeOff } from 'lucide-react-native';
+import { Lock, Mail, Eye, EyeOff, FileText } from 'lucide-react-native';
 
-const LoginScreen = ({ navigation }) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+export default function LoginScreen({ navigation }) {
+  const [email, setEmail] = useState('contato@licitamei.com.br');
+  const [password, setPassword] = useState('SenhaForte123!');
   const [showPassword, setShowPassword] = useState(false);
 
   const validatePassword = (pass) => {
-    // Validação de força de senha
     const minLength = pass.length >= 8;
     const hasUpper = /[A-Z]/.test(pass);
     const hasLower = /[a-z]/.test(pass);
@@ -42,7 +41,6 @@ const LoginScreen = ({ navigation }) => {
       return;
     }
 
-    // Sucesso
     console.log('Login realizado com sucesso para:', email);
     navigation.replace('Main');
   };
@@ -52,21 +50,23 @@ const LoginScreen = ({ navigation }) => {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={styles.container}
     >
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <View style={styles.iconContainer}>
-            <Lock color="#2563eb" size={40} />
+            <FileText color="#fff" size={32} />
           </View>
           <Text style={styles.title}>Acesso Seguro</Text>
-          <Text style={styles.subtitle}>Plataforma MEI - Licitações</Text>
+          <Text style={styles.subtitle}>LicitaMEI — Painel do Usuário</Text>
         </View>
 
         <View style={styles.form}>
+          <Text style={styles.inputLabel}>E-mail profissional</Text>
           <View style={styles.inputWrapper}>
-            <Mail color="#64748b" size={20} style={styles.inputIcon} />
+            <Mail color="#94a3b8" size={18} style={styles.inputIcon} />
             <TextInput
               style={styles.input}
-              placeholder="E-mail profissional"
+              placeholder="seuemail@exemplo.com.br"
+              placeholderTextColor="#94a3b8"
               value={email}
               onChangeText={setEmail}
               keyboardType="email-address"
@@ -74,20 +74,22 @@ const LoginScreen = ({ navigation }) => {
             />
           </View>
 
+          <Text style={styles.inputLabel}>Senha de segurança</Text>
           <View style={styles.inputWrapper}>
-            <Lock color="#64748b" size={20} style={styles.inputIcon} />
+            <Lock color="#94a3b8" size={18} style={styles.inputIcon} />
             <TextInput
               style={[styles.input, { flex: 1 }]}
-              placeholder="Sua senha forte"
+              placeholder="Digite sua senha forte"
+              placeholderTextColor="#94a3b8"
               value={password}
               onChangeText={setPassword}
               secureTextEntry={!showPassword}
             />
             <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
               {showPassword ? (
-                <EyeOff color="#64748b" size={20} />
+                <EyeOff color="#64748b" size={18} />
               ) : (
-                <Eye color="#64748b" size={20} />
+                <Eye color="#64748b" size={18} />
               )}
             </TouchableOpacity>
           </View>
@@ -115,7 +117,7 @@ const LoginScreen = ({ navigation }) => {
             🔐 Seus dados estão protegidos conforme a LGPD.
           </Text>
           <TouchableOpacity onPress={() => Alert.alert('Política de Privacidade', 'Conteúdo da Política de Privacidade e Termos de Uso do MEI...')}>
-            <Text style={[styles.footerText, { color: '#2563eb', marginTop: 4 }]}>
+            <Text style={styles.termsLink}>
               Ver Termos e Privacidade
             </Text>
           </TouchableOpacity>
@@ -123,12 +125,12 @@ const LoginScreen = ({ navigation }) => {
       </ScrollView>
     </KeyboardAvoidingView>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#f8fafc',
   },
   scrollContent: {
     flexGrow: 1,
@@ -137,47 +139,65 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    marginBottom: 40,
+    marginBottom: 32,
   },
   iconContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: '#eff6ff',
+    width: 64,
+    height: 64,
+    borderRadius: 16,
+    backgroundColor: '#2563eb',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 16,
+    shadowColor: '#2563eb',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 2,
   },
   title: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: 'bold',
     color: '#1e293b',
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#64748b',
-    marginTop: 8,
+    marginTop: 6,
+    fontWeight: '500',
   },
   form: {
     width: '100%',
   },
+  inputLabel: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#475569',
+    marginBottom: 6,
+    marginLeft: 2,
+  },
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#fff',
     borderRadius: 12,
     paddingHorizontal: 16,
     marginBottom: 16,
     borderWidth: 1,
     borderColor: '#e2e8f0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.02,
+    shadowRadius: 2,
+    elevation: 1,
   },
   inputIcon: {
     marginRight: 12,
   },
   input: {
-    height: 56,
+    height: 50,
     color: '#1e293b',
-    fontSize: 16,
+    fontSize: 15,
   },
   forgotPassword: {
     alignSelf: 'flex-end',
@@ -186,31 +206,32 @@ const styles = StyleSheet.create({
   forgotPasswordText: {
     color: '#2563eb',
     fontWeight: '600',
+    fontSize: 13,
   },
   button: {
     backgroundColor: '#2563eb',
-    height: 56,
+    height: 50,
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#2563eb',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 4,
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    elevation: 3,
   },
   buttonText: {
     color: '#ffffff',
-    fontSize: 18,
+    fontSize: 15,
     fontWeight: 'bold',
   },
   signupButton: {
-    marginTop: 24,
+    marginTop: 20,
     alignItems: 'center',
   },
   signupText: {
     color: '#64748b',
-    fontSize: 14,
+    fontSize: 13,
   },
   signupHighlight: {
     color: '#2563eb',
@@ -222,9 +243,13 @@ const styles = StyleSheet.create({
   },
   footerText: {
     color: '#94a3b8',
-    fontSize: 12,
+    fontSize: 11,
     textAlign: 'center',
+  },
+  termsLink: {
+    color: '#2563eb',
+    fontSize: 11,
+    marginTop: 6,
+    fontWeight: '600',
   }
 });
-
-export default LoginScreen;

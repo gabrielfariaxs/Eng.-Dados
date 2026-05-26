@@ -1,11 +1,14 @@
-from pipeline import UniversityETL
+from pipeline import LicitacaoMEIETL
 
 def main():
-    print("--- University Data Pipeline ---")
-    pais = input("País (ex: Brazil): ") or "Brazil"
+    print("--- LicitaMEI Data Pipeline ---")
+    try:
+        dias = int(input("Quantidade de dias para buscar licitações (padrão: 15): ") or 15)
+    except ValueError:
+        dias = 15
     
     # Execução encadeada (Chaining) para código mais limpo
-    (UniversityETL(pais)
+    (LicitacaoMEIETL(dias)
         .extract()
         .transform()
         .load_sqlite()
