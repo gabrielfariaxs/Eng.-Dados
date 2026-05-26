@@ -4,7 +4,8 @@ from fastmcp import FastMCP
 
 mcp = FastMCP("licitamei")
 
-DB_PATH = "licitacoes_mei.db"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_PATH = os.path.join(BASE_DIR, "licitacoes_mei.db")
 
 def _obter_conexao():
     return sqlite3.connect(DB_PATH)

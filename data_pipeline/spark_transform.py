@@ -1,7 +1,7 @@
 import os
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, when
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 import logging
 
 logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 def run_spark_transformation():
     """Realiza a transformação dos dados do MongoDB Atlas usando PySpark."""
-    load_dotenv()
+    load_dotenv(find_dotenv())
     
     uri = os.getenv("MONGODB_URI")
     db_name = os.getenv("DB_NAME", "licitamei_db")
@@ -63,7 +63,8 @@ def run_spark_transformation():
         df_final.show(20, truncate=False)
 
         # 4. Salvar como CSV ou Parquet para auditoria/apresentação
-        output_path = "output_spark_licitacoes"
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        output_path = os.path.join(base_dir, "output_spark_licitacoes")
         df_final.write.mode("overwrite").option("header", "true").csv(output_path)
         logger.info(f"Dados transformados salvos em: {output_path}")
 

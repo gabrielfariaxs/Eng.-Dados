@@ -5,9 +5,9 @@ import streamlit as st
 from openai import OpenAI
 from fastmcp import Client
 from mcp_server import mcp
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 
-load_dotenv()
+load_dotenv(find_dotenv())
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 openai_client = OpenAI(api_key=OPENAI_API_KEY)

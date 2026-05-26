@@ -1,9 +1,9 @@
 from prefect import flow, task, get_run_logger
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 from pipeline import LicitacaoMEIETL
 from spark_transform import run_spark_transformation
 
-load_dotenv()
+load_dotenv(find_dotenv())
 
 @task(retries=3, retry_delay_seconds=10)
 def extract_licitacoes(dias: int) -> LicitacaoMEIETL:
@@ -60,9 +60,9 @@ def licitamei_main_flow(periodo_dias: int = 15):
     etl_mongo = load_to_mongo(etl_sqlite)
     
     # Nova etapa de processamento Big Data com Spark
-    spark_processing()
+    _ = spark_processing()
     
-    generate_insights(etl_mongo)
+    _ = generate_insights(etl_mongo)
     
     logger.info("✅ Pipeline LicitaMEI concluído com sucesso!")
 

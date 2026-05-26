@@ -3,7 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from datetime import datetime, timedelta
 from pymongo import MongoClient
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 
 logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 logger = logging.getLogger(__name__)
@@ -12,7 +12,7 @@ class LicitacaoMEIETL:
     """Pipeline ETL para processamento de licitações voltadas para MEI (PNCP)."""
     
     def __init__(self, dias_frente: int = 15):
-        load_dotenv()
+        load_dotenv(find_dotenv())
         self.dias_frente = dias_frente
         self.data = None
         # Datas para o PNCP
@@ -78,9 +78,13 @@ class LicitacaoMEIETL:
         logger.info(f"Transformação concluída. {len(self.data)} licitações processadas.")
         return self
 
-    def load_sqlite(self, db_path="licitacoes_mei.db"):
+    def load_sqlite(self, db_path=None):
         """Salva no SQLite local."""
         if self.data is None or self.data.empty: return self
+        if db_path is None:
+            # Salva o banco no diretório irmão chatbot_mcp/
+            base_dir = os.path.dirname(os.path.abspath(__file__))
+            db_path = os.path.join(base_dir, "..", "chatbot_mcp", "licitacoes_mei.db")
         try:
             with sqlite3.connect(db_path) as conn:
                 self.data.to_sql("licitacoes_ativas", conn, if_exists='replace', index=False)
@@ -117,5 +121,7 @@ class LicitacaoMEIETL:
         plt.xlabel('Estado')
         plt.ylabel('Quantidade')
         plt.tight_layout()
-        plt.savefig("analise_licitacoes_mei.png")
-        logger.info("Dashboard gerado: analise_licitacoes_mei.png")
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        img_path = os.path.join(base_dir, "analise_licitacoes_mei.png")
+        plt.savefig(img_path)
+        logger.info(f"Dashboard gerado: {img_path}")
