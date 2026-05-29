@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useContext } from 'react';
+import { View, ActivityIndicator } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -11,9 +12,13 @@ import AlertsScreen from '../screens/AlertsScreen';
 import BidDetailsScreen from '../screens/BidDetailsScreen';
 import OnboardingScreen from '../screens/OnboardingScreen';
 import LoginScreen from '../screens/LoginScreen';
+import SignupScreen from '../screens/SignupScreen';
 
 // Custom Tab Bar
 import CustomTabBar from '../components/CustomTabBar';
+
+// AuthContext
+import { AuthContext } from '../context/AuthContext';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -46,21 +51,28 @@ function TabNavigator() {
 }
 
 export default function AppNavigator() {
+  const { isLoading, userToken } = useContext(AuthContext);
+
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color="#2563eb" />
+      </View>
+    );
+  }
+
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Onboarding" screenOptions={{ headerShown: false }}>
-        <Stack.Screen 
-          name="Onboarding" 
-          component={OnboardingScreen} 
-        />
-        <Stack.Screen 
-          name="Login" 
-          component={LoginScreen} 
-        />
-        <Stack.Screen 
-          name="Main" 
-          component={TabNavigator} 
-        />
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        {userToken === null ? (
+          <>
+            <Stack.Screen name="Onboarding" component={OnboardingScreen} />
+            <Stack.Screen name="Login" component={LoginScreen} />
+            <Stack.Screen name="Signup" component={SignupScreen} />
+          </>
+        ) : (
+          <Stack.Screen name="Main" component={TabNavigator} />
+        )}
       </Stack.Navigator>
     </NavigationContainer>
   );

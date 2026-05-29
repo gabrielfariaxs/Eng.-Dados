@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState } from 'react';
 import { 
   View, 
   Text, 
@@ -10,15 +10,13 @@ import {
   Platform,
   ScrollView
 } from 'react-native';
-import { Lock, Mail, Eye, EyeOff, FileText } from 'lucide-react-native';
-import { AuthContext } from '../context/AuthContext';
+import { Lock, Mail, User, Eye, EyeOff, FileText } from 'lucide-react-native';
 
-export default function LoginScreen({ navigation }) {
-  const [email, setEmail] = useState('contato@licitamei.com.br');
-  const [password, setPassword] = useState('SenhaForte123!');
+export default function SignupScreen({ navigation }) {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  
-  const { login } = useContext(AuthContext);
 
   const validatePassword = (pass) => {
     const minLength = pass.length >= 8;
@@ -30,8 +28,8 @@ export default function LoginScreen({ navigation }) {
     return minLength && hasUpper && hasLower && hasNumber && hasSpecial;
   };
 
-  const handleLogin = () => {
-    if (!email || !password) {
+  const handleSignup = () => {
+    if (!name || !email || !password) {
       Alert.alert('Erro', 'Por favor, preencha todos os campos.');
       return;
     }
@@ -44,9 +42,11 @@ export default function LoginScreen({ navigation }) {
       return;
     }
 
-    console.log('Login realizado com sucesso para:', email);
-    const dummyToken = 'sessionToken_1234567890';
-    login(dummyToken);
+    // Simulando chamada a API
+    console.log('Conta criada com sucesso para:', email);
+    Alert.alert('Sucesso', 'Conta criada! Faça login para continuar.', [
+      { text: 'OK', onPress: () => navigation.navigate('Login') }
+    ]);
   };
 
   return (
@@ -59,11 +59,24 @@ export default function LoginScreen({ navigation }) {
           <View style={styles.iconContainer}>
             <FileText color="#fff" size={32} />
           </View>
-          <Text style={styles.title}>Acesso Seguro</Text>
-          <Text style={styles.subtitle}>LicitaMEI — Painel do Usuário</Text>
+          <Text style={styles.title}>Criar Conta</Text>
+          <Text style={styles.subtitle}>Junte-se ao LicitaMEI</Text>
         </View>
 
         <View style={styles.form}>
+          <Text style={styles.inputLabel}>Nome completo</Text>
+          <View style={styles.inputWrapper}>
+            <User color="#94a3b8" size={18} style={styles.inputIcon} />
+            <TextInput
+              style={styles.input}
+              placeholder="Digite seu nome"
+              placeholderTextColor="#94a3b8"
+              value={name}
+              onChangeText={setName}
+              autoCapitalize="words"
+            />
+          </View>
+
           <Text style={styles.inputLabel}>E-mail profissional</Text>
           <View style={styles.inputWrapper}>
             <Mail color="#94a3b8" size={18} style={styles.inputIcon} />
@@ -83,7 +96,7 @@ export default function LoginScreen({ navigation }) {
             <Lock color="#94a3b8" size={18} style={styles.inputIcon} />
             <TextInput
               style={[styles.input, { flex: 1 }]}
-              placeholder="Digite sua senha forte"
+              placeholder="Crie uma senha forte"
               placeholderTextColor="#94a3b8"
               value={password}
               onChangeText={setPassword}
@@ -98,20 +111,16 @@ export default function LoginScreen({ navigation }) {
             </TouchableOpacity>
           </View>
 
-          <TouchableOpacity style={styles.forgotPassword}>
-            <Text style={styles.forgotPasswordText}>Esqueceu a senha?</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.button} onPress={handleLogin}>
-            <Text style={styles.buttonText}>Entrar com Segurança</Text>
+          <TouchableOpacity style={styles.button} onPress={handleSignup}>
+            <Text style={styles.buttonText}>Cadastrar MEI</Text>
           </TouchableOpacity>
 
           <TouchableOpacity 
-            style={styles.signupButton}
-            onPress={() => navigation.navigate('Signup')}
+            style={styles.loginButton}
+            onPress={() => navigation.navigate('Login')}
           >
-            <Text style={styles.signupText}>
-              Não tem conta? <Text style={styles.signupHighlight}>Cadastre seu MEI</Text>
+            <Text style={styles.loginText}>
+              Já tem uma conta? <Text style={styles.loginHighlight}>Faça Login</Text>
             </Text>
           </TouchableOpacity>
         </View>
@@ -120,11 +129,6 @@ export default function LoginScreen({ navigation }) {
           <Text style={styles.footerText}>
             🔐 Seus dados estão protegidos conforme a LGPD.
           </Text>
-          <TouchableOpacity onPress={() => Alert.alert('Política de Privacidade', 'Conteúdo da Política de Privacidade e Termos de Uso do MEI...')}>
-            <Text style={styles.termsLink}>
-              Ver Termos e Privacidade
-            </Text>
-          </TouchableOpacity>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -199,18 +203,10 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   input: {
+    flex: 1,
     height: 50,
     color: '#1e293b',
     fontSize: 15,
-  },
-  forgotPassword: {
-    alignSelf: 'flex-end',
-    marginBottom: 24,
-  },
-  forgotPasswordText: {
-    color: '#2563eb',
-    fontWeight: '600',
-    fontSize: 13,
   },
   button: {
     backgroundColor: '#2563eb',
@@ -218,6 +214,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
+    marginTop: 12,
     shadowColor: '#2563eb',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.15,
@@ -229,15 +226,15 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: 'bold',
   },
-  signupButton: {
+  loginButton: {
     marginTop: 20,
     alignItems: 'center',
   },
-  signupText: {
+  loginText: {
     color: '#64748b',
     fontSize: 13,
   },
-  signupHighlight: {
+  loginHighlight: {
     color: '#2563eb',
     fontWeight: 'bold',
   },
@@ -249,11 +246,5 @@ const styles = StyleSheet.create({
     color: '#94a3b8',
     fontSize: 11,
     textAlign: 'center',
-  },
-  termsLink: {
-    color: '#2563eb',
-    fontSize: 11,
-    marginTop: 6,
-    fontWeight: '600',
   }
 });

@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView } from 'react-native';
-import { TrendingUp, FileText, Bell, AlertTriangle } from 'lucide-react-native';
+import { TrendingUp, FileText, Bell, AlertTriangle, LogOut } from 'lucide-react-native';
+import { AuthContext } from '../context/AuthContext';
 
 const DESTAQUES = [
   { 
@@ -36,6 +37,8 @@ const DESTAQUES = [
 ];
 
 export default function DashboardScreen({ navigation }) {
+  const { logout } = useContext(AuthContext);
+
   const handleBidPress = (bid) => {
     // Navega para a aba 'Editais' e abre a tela de detalhes 'BidDetails'
     navigation.navigate('Editais', {
@@ -49,9 +52,15 @@ export default function DashboardScreen({ navigation }) {
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {/* Título da Tela */}
         <View style={styles.headerSection}>
-          <Text style={styles.screenTitle}>Painel de Controle</Text>
-          <Text style={styles.screenSubtitle}>Visão geral das suas oportunidades e documentação</Text>
+          <View>
+            <Text style={styles.screenTitle}>Painel de Controle</Text>
+            <Text style={styles.screenSubtitle}>Visão geral das suas oportunidades</Text>
+          </View>
+          <TouchableOpacity onPress={logout} style={styles.logoutButton}>
+            <LogOut size={22} color="#ef4444" />
+          </TouchableOpacity>
         </View>
+
 
         {/* Grade de Estatísticas */}
         <View style={styles.statsGrid}>
@@ -182,7 +191,15 @@ const styles = StyleSheet.create({
     paddingBottom: 24,
   },
   headerSection: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 20,
+  },
+  logoutButton: {
+    padding: 8,
+    backgroundColor: '#fee2e2',
+    borderRadius: 8,
   },
   screenTitle: {
     fontSize: 22,
