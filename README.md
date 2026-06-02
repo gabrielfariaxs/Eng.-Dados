@@ -122,3 +122,5 @@ O aplicativo foi desenvolvido em React Native/Expo e pode ser visualizado direta
 
 ## 👥 Equipe do Projeto
 *   **Isabella Karla**
+*   **Gabriel Farias**
+*   **Lucas Luna**
