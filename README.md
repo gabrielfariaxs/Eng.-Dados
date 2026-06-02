@@ -117,3 +117,8 @@ O aplicativo foi desenvolvido em React Native/Expo e pode ser visualizado direta
 *   **FastMCP & Streamlit**: Servidor MCP e interface de Chatbot de IA.
 *   **React Native & Expo**: Desenvolvimento do aplicativo móvel multiplataforma.
 *   **Lucide React Native**: Ícones modernos e limpos para a UI.
+
+---
+
+## 👥 Equipe do Projeto
+*   **Isabella Karla**
