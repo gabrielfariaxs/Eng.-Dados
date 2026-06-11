@@ -13,6 +13,7 @@ import BidDetailsScreen from '../screens/BidDetailsScreen';
 import OnboardingScreen from '../screens/OnboardingScreen';
 import LoginScreen from '../screens/LoginScreen';
 import SignupScreen from '../screens/SignupScreen';
+import ProfileScreen from '../screens/ProfileScreen';
 
 // Custom Tab Bar
 import CustomTabBar from '../components/CustomTabBar';
@@ -46,6 +47,7 @@ function TabNavigator() {
       <Tab.Screen name="Editais" component={EditaisStackNavigator} />
       <Tab.Screen name="Documentos" component={DocumentScreen} />
       <Tab.Screen name="Alertas" component={AlertsScreen} />
+      <Tab.Screen name="Perfil" component={ProfileScreen} />
     </Tab.Navigator>
   );
 }

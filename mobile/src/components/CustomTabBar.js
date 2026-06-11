@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { LayoutDashboard, FileText, FolderClosed, Bell } from 'lucide-react-native';
+import { LayoutDashboard, FileText, FolderClosed, Bell, User } from 'lucide-react-native';
 import Header from './Header';
 
 export default function CustomTabBar({ state, descriptors, navigation }) {
@@ -9,6 +9,7 @@ export default function CustomTabBar({ state, descriptors, navigation }) {
     Editais: FileText,
     Documentos: FolderClosed,
     Alertas: Bell,
+    Perfil: User,
   };
 
   const labels = {
@@ -16,6 +17,7 @@ export default function CustomTabBar({ state, descriptors, navigation }) {
     Editais: 'Editais',
     Documentos: 'Documentos',
     Alertas: 'Alertas',
+    Perfil: 'Perfil',
   };
 
   return (
@@ -65,15 +67,17 @@ export default function CustomTabBar({ state, descriptors, navigation }) {
               >
                 <View style={styles.tabContent}>
                   <IconComponent 
-                    size={15} 
+                    size={18} 
                     color={isFocused ? '#1e293b' : '#64748b'} 
                   />
-                  <Text style={[
-                    styles.tabLabel,
-                    isFocused ? styles.tabLabelActive : null
-                  ]}>
-                    {label}
-                  </Text>
+                  {isFocused && (
+                    <Text style={[
+                      styles.tabLabel,
+                      styles.tabLabelActive
+                    ]}>
+                      {label}
+                    </Text>
+                  )}
                   
                   {route.name === 'Alertas' && (
                     <View style={styles.badge}>
@@ -95,6 +99,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderBottomWidth: 1,
     borderBottomColor: '#e2e8f0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 4,
+    zIndex: 10,
   },
   tabBarWrapper: {
     paddingHorizontal: 16,

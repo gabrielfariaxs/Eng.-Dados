@@ -21,6 +21,10 @@ export default function OnboardingScreen({ navigation }) {
           <Text style={styles.description}>
             Encontre oportunidades de compras públicas, organize seus documentos de habilitação jurídica e participe de concorrências governamentais de forma simplificada e direta.
           </Text>
+
+          <Text style={styles.termsText}>
+            Ao continuar, você confirma a ciência e concorda com os <Text style={styles.termsLink}>Termos de Uso</Text> e <Text style={styles.termsLink}>Política de Privacidade</Text>.
+          </Text>
           
           <TouchableOpacity 
             style={styles.button}
@@ -105,6 +109,17 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#fff',
     fontSize: 16,
+    fontWeight: 'bold',
+  },
+  termsText: {
+    fontSize: 11,
+    color: '#94a3b8',
+    textAlign: 'center',
+    marginBottom: 20,
+    paddingHorizontal: 20,
+  },
+  termsLink: {
+    color: '#2563eb',
     fontWeight: 'bold',
   },
 });

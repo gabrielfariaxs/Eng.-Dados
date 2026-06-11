@@ -24,7 +24,7 @@ export default function Header() {
       
       <View style={styles.rightSection}>
         <View style={styles.cnpjBadge}>
-          <Text style={styles.cnpjText}>CNPJ: 12.345.678/0001-90</Text>
+          <Text style={styles.cnpjText}>CNPJ: 12.***.***/0001-90</Text>
         </View>
         <TouchableOpacity 
           style={styles.chatButton}
@@ -53,7 +53,8 @@ const styles = StyleSheet.create({
   leftSection: {
     flexDirection: 'row',
     alignItems: 'center',
-    flex: 0.5,
+    flex: 1,
+    marginRight: 10,
   },
   logoBackground: {
     width: 36,

@@ -10,13 +10,30 @@ import {
   Platform,
   ScrollView
 } from 'react-native';
-import { Lock, Mail, User, Eye, EyeOff, FileText } from 'lucide-react-native';
+import { Lock, Mail, User, Eye, EyeOff, FileText, ArrowLeft } from 'lucide-react-native';
 
 export default function SignupScreen({ navigation }) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [cnpj, setCnpj] = useState('');
+  const [preferences, setPreferences] = useState('');
+  const [lgpdConsent, setLgpdConsent] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const handleCnpjChange = (text) => {
+    let cleaned = text.replace(/\D/g, '');
+    if (cleaned.length > 14) cleaned = cleaned.slice(0, 14);
+
+    let formatted = cleaned;
+    if (cleaned.length > 2) formatted = `${cleaned.slice(0, 2)}.${cleaned.slice(2)}`;
+    if (cleaned.length > 5) formatted = `${formatted.slice(0, 6)}.${cleaned.slice(5)}`;
+    if (cleaned.length > 8) formatted = `${formatted.slice(0, 10)}/${cleaned.slice(8)}`;
+    if (cleaned.length > 12) formatted = `${formatted.slice(0, 15)}-${cleaned.slice(12)}`;
+
+    setCnpj(formatted);
+  };
 
   const validatePassword = (pass) => {
     const minLength = pass.length >= 8;
@@ -29,24 +46,33 @@ export default function SignupScreen({ navigation }) {
   };
 
   const handleSignup = () => {
-    if (!name || !email || !password) {
-      Alert.alert('Erro', 'Por favor, preencha todos os campos.');
+    setErrorMessage('');
+    
+    if (!name || !email || !password || !cnpj) {
+      setErrorMessage('Por favor, preencha todos os campos obrigatórios.');
+      return;
+    }
+
+    if (!lgpdConsent) {
+      setErrorMessage('Você precisa concordar com os Termos de Uso e Política de Privacidade (LGPD) para criar sua conta.');
       return;
     }
 
     if (!validatePassword(password)) {
-      Alert.alert(
-        'Segurança', 
-        'Sua senha deve ter pelo menos 8 caracteres, incluindo letras maiúsculas, minúsculas, números e símbolos.'
-      );
+      setErrorMessage('Sua senha deve ter pelo menos 8 caracteres, incluindo letras maiúsculas, minúsculas, números e símbolos.');
       return;
     }
 
     // Simulando chamada a API
     console.log('Conta criada com sucesso para:', email);
-    Alert.alert('Sucesso', 'Conta criada! Faça login para continuar.', [
-      { text: 'OK', onPress: () => navigation.navigate('Login') }
-    ]);
+    if (Platform.OS === 'web') {
+      window.alert('Conta criada com sucesso! Faça login para continuar.');
+      navigation.navigate('Login');
+    } else {
+      Alert.alert('Sucesso', 'Conta criada! Faça login para continuar.', [
+        { text: 'OK', onPress: () => navigation.navigate('Login') }
+      ]);
+    }
   };
 
   return (
@@ -56,6 +82,12 @@ export default function SignupScreen({ navigation }) {
     >
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
+          <TouchableOpacity 
+            style={styles.backButton} 
+            onPress={() => navigation.goBack()}
+          >
+            <ArrowLeft color="#64748b" size={24} />
+          </TouchableOpacity>
           <View style={styles.iconContainer}>
             <FileText color="#fff" size={32} />
           </View>
@@ -74,6 +106,20 @@ export default function SignupScreen({ navigation }) {
               value={name}
               onChangeText={setName}
               autoCapitalize="words"
+            />
+          </View>
+
+          <Text style={styles.inputLabel}>CNPJ do MEI</Text>
+          <View style={styles.inputWrapper}>
+            <FileText color="#94a3b8" size={18} style={styles.inputIcon} />
+            <TextInput
+              style={styles.input}
+              placeholder="00.000.000/0001-00"
+              placeholderTextColor="#94a3b8"
+              value={cnpj}
+              onChangeText={handleCnpjChange}
+              keyboardType="number-pad"
+              maxLength={18}
             />
           </View>
 
@@ -102,14 +148,44 @@ export default function SignupScreen({ navigation }) {
               onChangeText={setPassword}
               secureTextEntry={!showPassword}
             />
-            <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-              {showPassword ? (
-                <EyeOff color="#64748b" size={18} />
-              ) : (
-                <Eye color="#64748b" size={18} />
-              )}
-            </TouchableOpacity>
+            {Platform.OS !== 'web' && (
+              <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+                {showPassword ? (
+                  <EyeOff color="#64748b" size={18} />
+                ) : (
+                  <Eye color="#64748b" size={18} />
+                )}
+              </TouchableOpacity>
+            )}
           </View>
+
+          <Text style={styles.inputLabel}>Preferências de licitação (Opcional)</Text>
+          <View style={styles.inputWrapper}>
+            <FileText color="#94a3b8" size={18} style={styles.inputIcon} />
+            <TextInput
+              style={styles.input}
+              placeholder="Ex: Serviços de TI, Transporte"
+              placeholderTextColor="#94a3b8"
+              value={preferences}
+              onChangeText={setPreferences}
+            />
+          </View>
+
+          <TouchableOpacity 
+            style={styles.checkboxContainer} 
+            onPress={() => setLgpdConsent(!lgpdConsent)}
+          >
+            <View style={[styles.checkbox, lgpdConsent && styles.checkboxChecked]}>
+              {lgpdConsent && <View style={styles.checkboxInner} />}
+            </View>
+            <Text style={styles.checkboxLabel}>
+              Li e concordo com os Termos de Uso e a coleta dos meus dados para encontrar licitações de acordo com meu perfil (LGPD).
+            </Text>
+          </TouchableOpacity>
+
+          {errorMessage ? (
+            <Text style={styles.errorText}>{errorMessage}</Text>
+          ) : null}
 
           <TouchableOpacity style={styles.button} onPress={handleSignup}>
             <Text style={styles.buttonText}>Cadastrar MEI</Text>
@@ -148,6 +224,14 @@ const styles = StyleSheet.create({
   header: {
     alignItems: 'center',
     marginBottom: 32,
+    position: 'relative',
+  },
+  backButton: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    padding: 8,
+    zIndex: 10,
   },
   iconContainer: {
     width: 64,
@@ -207,6 +291,14 @@ const styles = StyleSheet.create({
     height: 50,
     color: '#1e293b',
     fontSize: 15,
+    ...(Platform.OS === 'web' ? { outlineStyle: 'none' } : {}),
+  },
+  errorText: {
+    color: '#ef4444',
+    fontSize: 13,
+    textAlign: 'center',
+    marginBottom: 12,
+    fontWeight: '500',
   },
   button: {
     backgroundColor: '#2563eb',
@@ -246,5 +338,37 @@ const styles = StyleSheet.create({
     color: '#94a3b8',
     fontSize: 11,
     textAlign: 'center',
+  },
+  checkboxContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+    marginTop: 10,
+    paddingRight: 10,
+  },
+  checkbox: {
+    width: 20,
+    height: 20,
+    borderWidth: 2,
+    borderColor: '#cbd5e1',
+    borderRadius: 4,
+    marginRight: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  checkboxChecked: {
+    borderColor: '#2563eb',
+    backgroundColor: '#2563eb',
+  },
+  checkboxInner: {
+    width: 10,
+    height: 10,
+    backgroundColor: '#fff',
+  },
+  checkboxLabel: {
+    flex: 1,
+    fontSize: 12,
+    color: '#475569',
+    lineHeight: 18,
   }
 });

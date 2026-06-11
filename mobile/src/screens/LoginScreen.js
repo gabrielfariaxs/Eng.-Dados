@@ -89,13 +89,15 @@ export default function LoginScreen({ navigation }) {
               onChangeText={setPassword}
               secureTextEntry={!showPassword}
             />
-            <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-              {showPassword ? (
-                <EyeOff color="#64748b" size={18} />
-              ) : (
-                <Eye color="#64748b" size={18} />
-              )}
-            </TouchableOpacity>
+            {Platform.OS !== 'web' && (
+              <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+                {showPassword ? (
+                  <EyeOff color="#64748b" size={18} />
+                ) : (
+                  <Eye color="#64748b" size={18} />
+                )}
+              </TouchableOpacity>
+            )}
           </View>
 
           <TouchableOpacity style={styles.forgotPassword}>
@@ -202,6 +204,7 @@ const styles = StyleSheet.create({
     height: 50,
     color: '#1e293b',
     fontSize: 15,
+    ...(Platform.OS === 'web' ? { outlineStyle: 'none' } : {}),
   },
   forgotPassword: {
     alignSelf: 'flex-end',
