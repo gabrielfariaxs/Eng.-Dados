@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView, Alert, Linking, Platform } from 'react-native';
 import { FileCheck, FileWarning, Clock, Upload, Download, ExternalLink, RefreshCw, Info } from 'lucide-react-native';
 
 const DOCUMENTS_LIST = [
@@ -56,12 +56,44 @@ const DOCUMENTS_LIST = [
 ];
 
 export default function DocumentScreen() {
+  const showAlert = (title, message) => {
+    if (Platform.OS === 'web') {
+      alert(`${title}\n\n${message}`);
+    } else {
+      Alert.alert(title, message);
+    }
+  };
+
+  const handleEmitirCCMEI = () => {
+    Linking.openURL('https://www.gov.br/empresas-e-negocios/pt-br/empreendedor');
+  };
+
+  const handleCertidoesFederais = () => {
+    Linking.openURL('https://solucoes.receita.fazenda.gov.br/Servicos/certidaointernet/PJ/Consultar');
+  };
+
+  const handleUpload = () => {
+    showAlert('Upload de Documento', 'Selecione o arquivo do seu dispositivo para fazer o upload (CCMEI ou Certidão).');
+  };
+
   const handleDownload = (docName) => {
-    Alert.alert('Download', `Baixando o arquivo para: ${docName}`);
+    showAlert('Download Concluído', `O arquivo "${docName}" foi baixado com sucesso.`);
   };
 
   const handleRenovar = (docName) => {
-    Alert.alert('Renovar Documento', `Redirecionando para renovação da certidão: ${docName}`);
+    if (docName.includes('Municipal')) {
+      Linking.openURL('https://www.prefeitura.sp.gov.br/cidade/secretarias/fazenda/servicos/certidoes/');
+    } else if (docName.includes('Estadual')) {
+      Linking.openURL('https://www.fazenda.sp.gov.br');
+    } else if (docName.includes('Federal')) {
+      Linking.openURL('https://solucoes.receita.fazenda.gov.br/Servicos/certidaointernet/PJ/Consultar');
+    } else if (docName.includes('Trabalhista')) {
+      Linking.openURL('https://www.tst.jus.br/certidao');
+    } else if (docName.includes('CCMEI')) {
+      Linking.openURL('https://www.gov.br/empresas-e-negocios/pt-br/empreendedor');
+    } else {
+      showAlert('Renovação', `Redirecionando para a renovação de: ${docName}`);
+    }
   };
 
   return (
@@ -102,15 +134,15 @@ export default function DocumentScreen() {
 
         {/* Linha de Botões de Ações Rápidas */}
         <View style={styles.quickActionsRow}>
-          <TouchableOpacity style={styles.actionButton}>
+          <TouchableOpacity style={styles.actionButton} onPress={handleEmitirCCMEI}>
             <ExternalLink size={14} color="#475569" style={{ marginRight: 6 }} />
             <Text style={styles.actionButtonText}>Emitir CCMEI</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.actionButton}>
+          <TouchableOpacity style={styles.actionButton} onPress={handleCertidoesFederais}>
             <ExternalLink size={14} color="#475569" style={{ marginRight: 6 }} />
             <Text style={styles.actionButtonText}>Certidões Federais</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.actionButton}>
+          <TouchableOpacity style={styles.actionButton} onPress={handleUpload}>
             <Upload size={14} color="#475569" style={{ marginRight: 6 }} />
             <Text style={styles.actionButtonText}>Upload</Text>
           </TouchableOpacity>

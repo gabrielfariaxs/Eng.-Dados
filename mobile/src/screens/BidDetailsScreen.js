@@ -6,12 +6,16 @@ export default function BidDetailsScreen({ route, navigation }) {
   const { bid } = route.params;
   const [expandedSection, setExpandedSection] = useState('fiscal'); // 'fiscal' expandido por padrão para corresponder ao mockup
   
-  // Controle de checks para os itens do checklist da seção regularidade fiscal
+  // Controle de checks para todos os itens do checklist
   const [checkedItems, setCheckedItems] = useState({
+    ccmei: true, // Habilitação Jurídica começa regular
     federais: false,
     estaduais: false,
     municipais: false,
-    trabalhistas: true, // CNDT começa marcado
+    trabalhistas: true, // CNDT começa regular
+    balanco: false,
+    falencia: false,
+    atestado: false,
   });
 
   const toggleSection = (sectionName) => {
@@ -25,8 +29,9 @@ export default function BidDetailsScreen({ route, navigation }) {
     }));
   };
 
-  const totalRequired = 6;
-  const docsUploaded = Object.values(checkedItems).filter(Boolean).length + 1; // +1 pelo documento do CCMEI que está regular
+  const requiredKeys = ['ccmei', 'federais', 'estaduais', 'municipais', 'trabalhistas', 'falencia'];
+  const docsUploaded = requiredKeys.filter(key => checkedItems[key]).length;
+  const totalRequired = requiredKeys.length;
   const progressPercent = Math.round((docsUploaded / totalRequired) * 100);
 
   return (
@@ -175,22 +180,33 @@ export default function BidDetailsScreen({ route, navigation }) {
           >
             <Text style={styles.accordionTitle}>Habilitação Jurídica</Text>
             <View style={styles.accordionRight}>
-              <Text style={styles.accordionProgressText}>1/1 disponíveis</Text>
+              <Text style={styles.accordionProgressText}>
+                {checkedItems.ccmei ? 1 : 0}/1 disponíveis
+              </Text>
               {expandedSection === 'juridica' ? <ChevronUp size={16} color="#64748b" /> : <ChevronDown size={16} color="#64748b" />}
             </View>
           </TouchableOpacity>
           {expandedSection === 'juridica' && (
             <View style={styles.accordionContent}>
-              <View style={[styles.docItem, styles.docItemRegular]}>
-                <CheckSquare size={20} color="#10b981" style={{ marginRight: 10 }} />
+              <TouchableOpacity 
+                style={[styles.docItem, checkedItems.ccmei ? styles.docItemRegular : styles.docItemMissing]}
+                onPress={() => toggleCheck('ccmei')}
+              >
+                {checkedItems.ccmei ? (
+                  <CheckSquare size={20} color="#10b981" style={{ marginRight: 10 }} />
+                ) : (
+                  <Square size={20} color="#94a3b8" style={{ marginRight: 10 }} />
+                )}
                 <View style={{ flex: 1 }}>
                   <View style={styles.docItemHeader}>
                     <Text style={styles.docName}>Certificado de Condição de MEI (CCMEI)</Text>
                     <View style={styles.requiredBadge}><Text style={styles.requiredBadgeText}>Obrigatório</Text></View>
                   </View>
-                  <Text style={styles.docStatusTextRegular}>Documento regular</Text>
+                  <Text style={checkedItems.ccmei ? styles.docStatusTextRegular : styles.docStatusTextMissing}>
+                    {checkedItems.ccmei ? 'Documento regular' : 'Documento não disponível'}
+                  </Text>
                 </View>
-              </View>
+              </TouchableOpacity>
             </View>
           )}
 
@@ -202,7 +218,7 @@ export default function BidDetailsScreen({ route, navigation }) {
             <Text style={styles.accordionTitle}>Regularidade Fiscal e Trabalhista</Text>
             <View style={styles.accordionRight}>
               <Text style={styles.accordionProgressText}>
-                {Object.values(checkedItems).filter(Boolean).length}/4 disponíveis
+                {['federais', 'estaduais', 'municipais', 'trabalhistas'].filter(key => checkedItems[key]).length}/4 disponíveis
               </Text>
               {expandedSection === 'fiscal' ? <ChevronUp size={16} color="#64748b" /> : <ChevronDown size={16} color="#64748b" />}
             </View>
@@ -302,22 +318,55 @@ export default function BidDetailsScreen({ route, navigation }) {
           >
             <Text style={styles.accordionTitle}>Qualificação Econômico-Financeira</Text>
             <View style={styles.accordionRight}>
-              <Text style={styles.accordionProgressText}>0/2 disponíveis</Text>
+              <Text style={styles.accordionProgressText}>
+                {['balanco', 'falencia'].filter(key => checkedItems[key]).length}/2 disponíveis
+              </Text>
               {expandedSection === 'financeira' ? <ChevronUp size={16} color="#64748b" /> : <ChevronDown size={16} color="#64748b" />}
             </View>
           </TouchableOpacity>
           {expandedSection === 'financeira' && (
             <View style={styles.accordionContent}>
-              <View style={[styles.docItem, styles.docItemMissing]}>
-                <Square size={20} color="#94a3b8" style={{ marginRight: 10 }} />
+              {/* Item 1: Balanço Patrimonial */}
+              <TouchableOpacity 
+                style={[styles.docItem, checkedItems.balanco ? styles.docItemRegular : styles.docItemMissing]}
+                onPress={() => toggleCheck('balanco')}
+              >
+                {checkedItems.balanco ? (
+                  <CheckSquare size={20} color="#10b981" style={{ marginRight: 10 }} />
+                ) : (
+                  <Square size={20} color="#94a3b8" style={{ marginRight: 10 }} />
+                )}
                 <View style={{ flex: 1 }}>
                   <View style={styles.docItemHeader}>
                     <Text style={styles.docName}>Balanço Patrimonial</Text>
                     <View style={styles.optionalBadge}><Text style={styles.optionalBadgeText}>Opcional p/ MEI</Text></View>
                   </View>
-                  <Text style={styles.docStatusTextMissing}>Dispensado ou não anexado</Text>
+                  <Text style={checkedItems.balanco ? styles.docStatusTextRegular : styles.docStatusTextMissing}>
+                    {checkedItems.balanco ? 'Documento regular' : 'Dispensado ou não anexado'}
+                  </Text>
                 </View>
-              </View>
+              </TouchableOpacity>
+
+              {/* Item 2: Certidão de Falência */}
+              <TouchableOpacity 
+                style={[styles.docItem, checkedItems.falencia ? styles.docItemRegular : styles.docItemMissing]}
+                onPress={() => toggleCheck('falencia')}
+              >
+                {checkedItems.falencia ? (
+                  <CheckSquare size={20} color="#10b981" style={{ marginRight: 10 }} />
+                ) : (
+                  <Square size={20} color="#94a3b8" style={{ marginRight: 10 }} />
+                )}
+                <View style={{ flex: 1 }}>
+                  <View style={styles.docItemHeader}>
+                    <Text style={styles.docName}>Certidão Negativa de Falência ou Recuperação Judicial</Text>
+                    <View style={styles.requiredBadge}><Text style={styles.requiredBadgeText}>Obrigatório</Text></View>
+                  </View>
+                  <Text style={checkedItems.falencia ? styles.docStatusTextRegular : styles.docStatusTextMissing}>
+                    {checkedItems.falencia ? 'Documento regular' : 'Documento não disponível'}
+                  </Text>
+                </View>
+              </TouchableOpacity>
             </View>
           )}
 
@@ -328,22 +377,33 @@ export default function BidDetailsScreen({ route, navigation }) {
           >
             <Text style={styles.accordionTitle}>Qualificação Técnica</Text>
             <View style={styles.accordionRight}>
-              <Text style={styles.accordionProgressText}>0/1 disponíveis</Text>
+              <Text style={styles.accordionProgressText}>
+                {checkedItems.atestado ? 1 : 0}/1 disponíveis
+              </Text>
               {expandedSection === 'tecnica' ? <ChevronUp size={16} color="#64748b" /> : <ChevronDown size={16} color="#64748b" />}
             </View>
           </TouchableOpacity>
           {expandedSection === 'tecnica' && (
             <View style={styles.accordionContent}>
-              <View style={[styles.docItem, styles.docItemMissing]}>
-                <Square size={20} color="#94a3b8" style={{ marginRight: 10 }} />
+              <TouchableOpacity 
+                style={[styles.docItem, checkedItems.atestado ? styles.docItemRegular : styles.docItemMissing]}
+                onPress={() => toggleCheck('atestado')}
+              >
+                {checkedItems.atestado ? (
+                  <CheckSquare size={20} color="#10b981" style={{ marginRight: 10 }} />
+                ) : (
+                  <Square size={20} color="#94a3b8" style={{ marginRight: 10 }} />
+                )}
                 <View style={{ flex: 1 }}>
                   <View style={styles.docItemHeader}>
                     <Text style={styles.docName}>Atestado de Capacidade Técnica</Text>
                     <View style={styles.optionalBadge}><Text style={styles.optionalBadgeText}>Opcional p/ MEI</Text></View>
                   </View>
-                  <Text style={styles.docStatusTextMissing}>Não disponível</Text>
+                  <Text style={checkedItems.atestado ? styles.docStatusTextRegular : styles.docStatusTextMissing}>
+                    {checkedItems.atestado ? 'Documento regular' : 'Não disponível'}
+                  </Text>
                 </View>
-              </View>
+              </TouchableOpacity>
             </View>
           )}
         </View>
